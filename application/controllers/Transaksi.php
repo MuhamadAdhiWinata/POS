@@ -91,5 +91,6 @@
 			$pdf->Cell(40,7,$total, 1, 1);
 			$pdf->Output();
 		}
+		
 	}
 ?>

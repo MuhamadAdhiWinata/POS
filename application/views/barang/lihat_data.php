@@ -13,10 +13,10 @@
                 <th>Kategori Barang</th>
                 <th>Harga</th>
                 <th>
-								<div class="text-center">
-									Operasi
-								</div>
-								</th>
+					<div class="text-center">
+						Operasi
+					</div>
+				</th>
             </tr>
         </thead>
         <tbody>
@@ -29,11 +29,11 @@
                     <td><?= $r->nama_kategori ?></td>
                     <td><?= $r->harga ?></td>
                     <td>
-											<p class="text-center">
-												<?= anchor('barang/edit/' . $r->barang_id, 'Edit') ?>
-												<?= anchor('barang/delete/' . $r->barang_id, 'Delete') ?>
-											</p>
-										</td>
+						<p class="text-center">
+							<?= anchor('barang/edit/' . $r->barang_id, 'Edit') ?>
+							<?= anchor('barang/delete/' . $r->barang_id, 'Delete') ?>
+						</p>
+					</td>
                 </tr>
             <?php endforeach; ?>
         </tbody>

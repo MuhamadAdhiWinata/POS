@@ -23,7 +23,7 @@
         <tbody>
             <?php 
             $no = 1;
-            foreach ($record->result() as $r): ?>
+            foreach ($record as $r): ?>
                 <tr>
                     <td><p class="text-center"><?= $no++ ?></p></td>
                     <td><?= $r->nama_lengkap ?></td>

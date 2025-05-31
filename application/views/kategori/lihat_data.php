@@ -9,28 +9,28 @@
 <table class="table table-striped" id="example">
         <thead>
             <tr class="active">
-								<th width="10">No</th>
+				<th width="10">No</th>
                 <th>Nama Kategori</th>
                 <th>
-								<div class="text-center">
-									Operasi
-								</div>
-								</th>
+					<div class="text-center">
+						Operasi
+					</div>
+					</th>
             </tr>
         </thead>
         <tbody>
             <?php 
             $no = 1;
-            foreach ($record->result() as $r): ?>
+            foreach ($record as $r): ?>
                 <tr>
                     <td><p class="text-center"><?= $no++ ?></p></td>
                     <td><?= $r->nama_kategori ?></td>
                     <td>
-											<p class="text-center">
-												<?= anchor('kategori/edit/'.$r->kategori_id,'Edit') ?>
-												<?= anchor('kategori/delete/'.$r->kategori_id,'Delete') ?>
-											</p>
-										</td>
+						<p class="text-center">
+							<?= anchor('kategori/edit/'.$r->kategori_id,'Edit') ?>
+							<?= anchor('kategori/delete/'.$r->kategori_id,'Delete') ?>
+						</p>
+					</td>
                 </tr>
             <?php endforeach; ?>
         </tbody>

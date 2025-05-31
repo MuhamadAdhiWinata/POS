@@ -5,15 +5,30 @@
 		{
 			parent :: __construct();
 			$this->load->model('model_operator');
+			$this->load->library('redisdb');
+			
 			check_session();
 			
 		}
 
 		function index()
 		{
-			$data['record']= $this->model_operator->tampildata();
-			// $this->load->view('operator/lihat_data',$data);
-			$this->template->load('template','operator/lihat_data',$data);
+			// $data['record']= $this->model_operator->tampildata();
+			// // $this->load->view('operator/lihat_data',$data);
+			// $this->template->load('template','operator/lihat_data',$data);
+			$cacheKey = 'operator';
+			$data = $this->redisdb->get($cacheKey);
+
+			if (!$data) {
+					echo "<p style='color:red;'>Data dari <strong>Database</strong></p>";
+					$data = json_encode($this->model_operator->tampildata()->result());
+					$this->redisdb->set($cacheKey, $data, 300); // Cache selama 5 menit    
+			}else{
+					echo "<p style='color:green;'>Data dari <strong>Redis Cache</strong></p>";
+			}
+
+			$result['record'] = json_decode($data);
+			$this->template->load('template','operator/lihat_data',$result);
 		}
 
 		function post()
@@ -27,6 +42,7 @@
 													'username' =>$username,
 													'password'=>md5($password));
 				$this->db->insert('operator', $data);
+				$this->redisdb->delete('operator');
 				redirect('operator');
 			} else {
 				// $this->load->view('operator/form_input');
@@ -44,14 +60,15 @@
 				$password = $this->input->post('password',true);
 				if (empty($password)) {
 					$data 		= array('nama_lengkap'=>$nama,
-														'username' =>$username);
+					'username' =>$username);
 				} else {
 					$data 		= array('nama_lengkap'=>$nama,
-														'username' =>$username,
-														'password' =>md5($password));
+					'username' =>$username,
+					'password' =>md5($password));
 				}
 				$this->db->where('operator_id', $id);
 				$this->db->update('operator', $data);
+				$this->redisdb->delete('operator');
 				redirect('operator');
 			} else {
 				$id= $this->uri->segment(3);
@@ -60,12 +77,13 @@
 				$this->template->load('template','operator/form_edit',$data);
 			}
 		}
-
+		
 		function delete()
 		{
 			$id= $this->uri->segment(3);
 			$this->db->where('operator_id', $id);
 			$this->db->delete('operator');
+			$this->redisdb->delete('operator');
 			redirect('operator');
 			
 		}

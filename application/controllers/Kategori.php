@@ -5,24 +5,29 @@
 		{
 			parent ::__construct();
 			$this->load->model('model_kategori');
+			$this->load->library('redisdb');
+			
+
 			check_session();
 		}
 
 		function index()
 		{
-			// $this->load->library('pagination');
-			// $config['base_url'] 	= base_url().'index.php/kategori/index/';
-			// $config['total_rows'] = $this->model_kategori->tampilkan_data()->num_rows();
-			// $config['per_page'] 	= 4;
-			// $this->pagination->initialize($config);
-			// $data['paging'] 	= $this->pagination->create_links();
-			// $halaman 					= $this->uri->segment(3);
-			// $halaman 					= $halaman == ''?0:$halaman;
-			// $data['record']		= $this->model_kategori->tampilkan_data_paging($halaman, $config['per_page']);
-			$data['record']		= $this->model_kategori->tampilkan_data();
-			// $this->load->view('kategori/lihat_data', $data);
-			$this->template->load('template','kategori/lihat_data',$data);
+			$cacheKey = 'kategori_barang';
+			$data = $this->redisdb->get($cacheKey);
+
+			if (!$data) {
+					echo "<p style='color:red;'>Data dari <strong>Database</strong></p>";
+					$data = json_encode($this->model_kategori->tampilkan_data()->result());
+					$this->redisdb->set($cacheKey, $data, 300); // Cache selama 5 menit    
+			}else{
+					echo "<p style='color:green;'>Data dari <strong>Redis Cache</strong></p>";
+			}
+
+			$result['record'] = json_decode($data);
+			$this->template->load('template','kategori/lihat_data',$result);    
 		}
+
 
 		function post()
 		{
@@ -30,6 +35,8 @@
 			{
 				//proses kategori
 				$this->model_kategori->post();
+				// Hapus cache setelah insert
+				$this->redisdb->delete('kategori_barang');
 				redirect('kategori');
 			} else {
 				// $this->load->view('kategori/form_input');
@@ -44,6 +51,10 @@
 			{
 				//proses kategori
 				$this->model_kategori->edit();
+
+				// hapus chace setelah insert
+				$this->redisdb->delete('kategori_barang');
+
 				redirect('kategori');
 			} else {
 				$id= $this->uri->segment(3);
@@ -57,6 +68,8 @@
 		{
 			$id= $this->uri->segment(3);
 			$this->model_kategori->delete($id);
+			// hapus chace setelah insert
+			$this->redisdb->delete('kategori_barang');
 			redirect('kategori');
 		}
 
