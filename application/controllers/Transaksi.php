@@ -5,6 +5,8 @@
 		{
 			parent ::__construct();
 			$this->load->model(array('model_barang', 'model_transaksi'));
+			$this->load->library('redisdb');
+			
 			check_session();
 		}
 

@@ -14,10 +14,10 @@
                 <th>Username</th>
                 <th>Login Terakhir</th>
                 <th>
-								<div class="text-center">
-									Operasi
-								</div>
-								</th>
+					<div class="text-center">
+						Operasi
+					</div>
+					</th>
             </tr>
         </thead>
         <tbody>

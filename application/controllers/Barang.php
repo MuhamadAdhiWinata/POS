@@ -18,7 +18,8 @@
         $data = $this->redisdb->get($cacheKey);
 
         if (!$data) {
-						echo "<p style='color:red;'>Data dari <strong>Database</strong></p>";
+					// jadikan alert	
+					echo "<p style='color:red;'>Data dari <strong>Database</strong></p>";
             $data = json_encode($this->model_barang->tampil_data()->result());
             $this->redisdb->set($cacheKey, $data, 300); // Cache selama 5 menit
         }else{
