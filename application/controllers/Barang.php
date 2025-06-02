@@ -18,7 +18,6 @@
         $data = $this->redisdb->get($cacheKey);
 
         if (!$data) {
-					// jadikan alert	
 					echo "<script>console.log('Data Dari Database');</script>";
 					$data = json_encode($this->model_barang->tampil_data()->result());
 					$this->redisdb->set($cacheKey, $data, 300); // Cache selama 5 menit
@@ -30,30 +29,62 @@
         $this->template->load('template','barang/lihat_data', $result);
 		}
 		
+		// function post()
+		// {
+		// 	if (isset($_POST['submit'])) 
+		// 	{
+		// 		//proses barang
+		// 		$nama			= $this->input->post('nama_barang');
+		// 		$kategori	= $this->input->post('kategori');
+		// 		$harga		= $this->input->post('harga');
+		// 		$data			= array('nama_barang'=>$nama,
+		// 											'kategori_id'=>$kategori,
+		// 											'harga'=>$harga);
+		// 		$this->model_barang->post($data);
+
+		// 		// Hapus cache setelah insert
+		// 		$this->redisdb->delete('barang_list'); 
+
+		// 		redirect('barang');
+		// 	} else {
+		// 		$this->load->model('model_kategori');
+		// 		$data['kategori']= $this->model_kategori->tampilkan_data()->result();
+		// 		// $this->load->view('barang/form_input',$data);
+		// 		$this->template->load('template','barang/form_input',$data);
+		// 	}
+		// }
+
 		function post()
-		{
-			if (isset($_POST['submit'])) 
-			{
-				//proses barang
-				$nama			= $this->input->post('nama_barang');
-				$kategori	= $this->input->post('kategori');
-				$harga		= $this->input->post('harga');
-				$data			= array('nama_barang'=>$nama,
-													'kategori_id'=>$kategori,
-													'harga'=>$harga);
-				$this->model_barang->post($data);
+{
+	if (isset($_POST['submit'])) 
+	{
+		$nama     = $this->input->post('nama_barang');
+		$kategori = $this->input->post('kategori');
+		$harga    = $this->input->post('harga');
 
-				// Hapus cache setelah insert
-				$this->redisdb->delete('barang_list'); 
+		$data = [
+			'nama_barang' => $nama,
+			'kategori_id' => $kategori,
+			'harga'       => $harga
+		];
 
-				redirect('barang');
-			} else {
-				$this->load->model('model_kategori');
-				$data['kategori']= $this->model_kategori->tampilkan_data()->result();
-				// $this->load->view('barang/form_input',$data);
-				$this->template->load('template','barang/form_input',$data);
-			}
-		}
+		// Kirim data ke RabbitMQ
+		$this->load->library('queue'); // pastikan library ini ada
+		$this->queue->push(json_encode($data)); // method ini akan kamu buat di Queue.php
+
+		// Hapus cache Redis
+		$this->redisdb->delete('barang_list');
+
+		redirect('barang');
+	} 
+	else 
+	{
+		$this->load->model('model_kategori');
+		$data['kategori'] = $this->model_kategori->tampilkan_data()->result();
+		$this->template->load('template','barang/form_input', $data);
+	}
+}
+
 
 		function edit()
 		{
