@@ -20,11 +20,11 @@
 			$data = $this->redisdb->get($cacheKey);
 
 			if (!$data) {
-					echo "<p style='color:red;'>Data dari <strong>Database</strong></p>";
+					echo "<script>console.log('Data Dari database');</script>";
 					$data = json_encode($this->model_operator->tampildata()->result());
 					$this->redisdb->set($cacheKey, $data, 300); // Cache selama 5 menit    
 			}else{
-					echo "<p style='color:green;'>Data dari <strong>Redis Cache</strong></p>";
+					echo "<script>console.log('Data Dari RedisCache');</script>";
 			}
 
 			$result['record'] = json_decode($data);

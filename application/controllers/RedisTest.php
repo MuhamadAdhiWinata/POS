@@ -5,13 +5,14 @@ class RedisTest extends CI_Controller {
 
     public function index()
     {
-        $this->load->library('redis'); // Redis.php yang kamu buat di application/libraries
+        $this->load->library('redis'); 
 
-        $client = $this->redis->dataconfig(); // atau ->dbms()
+        $client = $this->redis->dataconfig();
 
         $client->set('ci_redis_test', 'Halo dari CodeIgniter');
         $value = $client->get('ci_redis_test');
 
         echo "Data Redis: " . $value;
     }
+
 }
