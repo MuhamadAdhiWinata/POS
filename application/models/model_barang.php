@@ -39,5 +39,15 @@
 			$this->db->where('barang_id', $id);
 			$this->db->delete('barang');
 		}
+
+		public function simpanDariQueue($data)
+		{
+			return $this->db->insert('barang', [
+					'nama_barang' => $data['nama_barang'],
+					'kategori_id' => $data['kategori_id'],
+					'harga'       => $data['harga'],
+			]);
+		}
+
 	}
 ?>

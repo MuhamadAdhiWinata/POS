@@ -55,36 +55,35 @@
 		// }
 
 		function post()
-{
-	if (isset($_POST['submit'])) 
-	{
-		$nama     = $this->input->post('nama_barang');
-		$kategori = $this->input->post('kategori');
-		$harga    = $this->input->post('harga');
+		{
+			if (isset($_POST['submit'])) 
+			{
+				$nama     = $this->input->post('nama_barang');
+				$kategori = $this->input->post('kategori');
+				$harga    = $this->input->post('harga');
 
-		$data = [
-			'nama_barang' => $nama,
-			'kategori_id' => $kategori,
-			'harga'       => $harga
-		];
+				$data = [
+					'nama_barang' => $nama,
+					'kategori_id' => $kategori,
+					'harga'       => $harga
+				];
 
-		// Kirim data ke RabbitMQ
-		$this->load->library('queue'); // pastikan library ini ada
-		$this->queue->push(json_encode($data)); // method ini akan kamu buat di Queue.php
+				// Kirim data ke RabbitMQ menggunakan method yang otomatis bind queue
+				$this->load->library('queue');
+				$this->queue->publishBarang($data);
 
-		// Hapus cache Redis
-		$this->redisdb->delete('barang_list');
+				// Hapus cache Redis
+				$this->redisdb->delete('barang_list');
 
-		redirect('barang');
-	} 
-	else 
-	{
-		$this->load->model('model_kategori');
-		$data['kategori'] = $this->model_kategori->tampilkan_data()->result();
-		$this->template->load('template','barang/form_input', $data);
-	}
-}
-
+				redirect('barang');
+			} 
+			else 
+			{
+				$this->load->model('model_kategori');
+				$data['kategori'] = $this->model_kategori->tampilkan_data()->result();
+				$this->template->load('template','barang/form_input', $data);
+			}
+		}
 
 		function edit()
 		{
