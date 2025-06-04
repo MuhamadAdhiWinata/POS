@@ -70,7 +70,7 @@
 
 				// Kirim data ke RabbitMQ menggunakan method yang otomatis bind queue
 				$this->load->library('queue');
-				$this->queue->publishBarang($data);
+				$this->queue->publish('barang',$data);
 
 				// Hapus cache Redis
 				$this->redisdb->delete('barang_list');

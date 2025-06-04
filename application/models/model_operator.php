@@ -22,5 +22,15 @@
 			$param= array('operator_id'=>$id);
 			return $this->db->get_where('operator',$param);
 		}
+
+		public function simpanDariQueue($data)
+		{
+			return $this->db->insert('operator', [
+				'nama_lengkap' => $data['nama_lengkap'],
+				'username'     => $data['username'],
+				'password'     => $data['password']
+			]);
+		}
+
 	}
 ?>

@@ -34,21 +34,26 @@
 		function post()
 		{
 			if (isset($_POST['submit'])) {
-				// proses
-				$nama 		= $this->input->post('nama',true);
-				$username = $this->input->post('username',true);
-				$password = $this->input->post('password',true);
-				$data 		= array('nama_lengkap'=>$nama,
-													'username' =>$username,
-													'password'=>md5($password));
-				$this->db->insert('operator', $data);
+				$nama     = $this->input->post('nama', true);
+				$username = $this->input->post('username', true);
+				$password = $this->input->post('password', true);
+
+				$data = [
+					'nama_lengkap' => $nama,
+					'username'     => $username,
+					'password'     => md5($password)
+				];
+
+				$this->load->library('queue');
+				$this->queue->publish('operator', $data);
 				$this->redisdb->delete('operator');
+
 				redirect('operator');
 			} else {
-				// $this->load->view('operator/form_input');
-				$this->template->load('template','operator/form_input');
+				$this->template->load('template', 'operator/form_input');
 			}
 		}
+
 
 		function edit()
 		{

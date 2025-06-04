@@ -104,53 +104,55 @@ class Queue {
      *
      * @param array $data
      */
-    public function publishBarang($data = array()) {
-        $exchange = 'barang_exchange';
-        $queue = 'barang_queue';
-        $routingKey = 'barang_routing_key';
+    public function publish($entity, $data = array()) {
+    $exchange 	= $entity . '_exchange';
+    $queue		= $entity . '_queue';
+    $routingKey = $entity . '_routing_key';
 
-        // Convert data to JSON
-        $message = new AMQPMessage(json_encode($data));
+    // Convert data to JSON
+    $message = new AMQPMessage(json_encode($data));
 
-        // Declare exchange, queue, and bind
-        $this->channel->exchange_declare($exchange, 'direct', false, true, false);
-        $this->channel->queue_declare($queue, false, true, false, false);
-        $this->channel->queue_bind($queue, $exchange, $routingKey);
+    // Declare exchange, queue, and bind
+    $this->channel->exchange_declare($exchange, 'direct', false, true, false);
+    $this->channel->queue_declare($queue, false, true, false, false);
+    $this->channel->queue_bind($queue, $exchange, $routingKey);
 
-        // Publish
-        $this->channel->basic_publish($message, $exchange, $routingKey);
-    }
+    // Publish
+    $this->channel->basic_publish($message, $exchange, $routingKey);
+}
 
-    public function consume($queue = 'barang_queue', $exchange = 'barang_exchange', $route = 'barang_routing_key')
-    {
-        // Buat queue dan exchange jika belum ada
-        $this->channel->exchange_declare($exchange, 'direct', false, true, false);
-        $this->channel->queue_declare($queue, false, true, false, false);
-        $this->channel->queue_bind($queue, $exchange, $route);
 
-        echo " [*] Menunggu pesan dari queue '{$queue}'. Tekan CTRL+C untuk keluar\n";
+    public function consume($queue, $exchange, $route, $model, $method)
+	{
+		$this->channel->exchange_declare($exchange, 'direct', false, true, false);
+		$this->channel->queue_declare($queue, false, true, false, false);
+		$this->channel->queue_bind($queue, $exchange, $route);
 
-        $callback = function ($msg) {
-            echo " [x] Diterima: ", $msg->body, "\n";
+		echo " [*] Menunggu pesan dari queue '{$queue}'. Tekan CTRL+C untuk keluar\n";
 
-            $data = json_decode($msg->body, true);
+		$callback = function ($msg) use ($model, $method) {
+			echo " [x] Diterima: ", $msg->body, "\n";
 
-            // Load CodeIgniter instance
-            $CI =& get_instance();
-            $CI->load->model('model_barang');
+			$data = json_decode($msg->body, true);
 
-            $CI->model_barang->simpanDariQueue($data);
+			$CI =& get_instance();
+			$CI->load->model($model);
 
-            echo " [v] Data disimpan ke DB\n";
-        };
+			if (method_exists($CI->$model, $method)) {
+				$CI->$model->$method($data);
+				echo " [v] Data disimpan ke DB via {$model}::{$method}()\n";
+			} else {
+				echo " [!] ERROR: Method {$method} tidak ditemukan di model {$model}\n";
+			}
+		};
 
-        $this->channel->basic_consume($queue, '', false, true, false, false, $callback);
+		$this->channel->basic_consume($queue, '', false, true, false, false, $callback);
 
-        while (count($this->channel->callbacks)) {
-            $this->channel->wait();
-        }
+		while (count($this->channel->callbacks)) {
+			$this->channel->wait();
+		}
+	}
 
-    }
 
 
     public function __destruct() {

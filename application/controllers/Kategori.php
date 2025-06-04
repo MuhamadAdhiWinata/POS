@@ -32,17 +32,25 @@
 		{
 			if (isset($_POST['submit'])) 
 			{
-				//proses kategori
-				$this->model_kategori->post();
-				// Hapus cache setelah insert
+				$nama = $this->input->post('nama_kategori');
+
+				$data = [
+					'nama_kategori' => $nama
+				];
+
+				$this->load->library('queue');
+				$this->queue->publish('kategori', $data);
+
 				$this->redisdb->delete('kategori_barang');
+
 				redirect('kategori');
-			} else {
-				// $this->load->view('kategori/form_input');
+			} 
+			else 
+			{
 				$this->template->load('template','kategori/form_input');
 			}
-			
 		}
+
 
 		function edit()
 		{

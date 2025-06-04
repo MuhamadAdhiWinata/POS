@@ -7,7 +7,7 @@
 		<td width="130">Nama Kategori</td>
 		<td>
 			<div style="width: 360px;">
-				<input type="text" class="form-control" name="kategori" placeholder="Kategori">
+				<input type="text" class="form-control" name="nama_kategori" placeholder="Kategori">
 			</div>
 		</td>
 	</tr>
